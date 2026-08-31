@@ -1,0 +1,23 @@
+[build]
+builder = "DOCKERFILE"
+dockerfilePath = "Dockerfile"
+
+[deploy]
+healthcheckPath = "/up"
+healthcheckTimeout = 300
+restartPolicyType = "ON_FAILURE"
+
+[variables]
+APP_NAME = "SlotBook"
+APP_ENV = "production"
+APP_DEBUG = "false"
+APP_TIMEZONE = "Asia/Manila"
+DB_CONNECTION = "mysql"
+LOG_CHANNEL = "stderr"
+MAIL_MAILER = "log"
+SESSION_DRIVER = "database"
+CACHE_STORE = "database"
+QUEUE_CONNECTION = "sync"
+MAIL_FROM_ADDRESS = "hello@slotbook.test"
+MAIL_FROM_NAME = "SlotBook"
+RAILPACK_PHP_EXTENSIONS = "pdo_mysql"

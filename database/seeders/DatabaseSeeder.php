@@ -47,7 +47,11 @@ class DatabaseSeeder extends Seeder
             ->orderBy('starts_at')
             ->first();
 
-        if ($openSlot && $openSlot->activeBooking === null) {
+        if (
+            Booking::query()->doesntExist()
+            && $openSlot
+            && $openSlot->activeBooking === null
+        ) {
             Booking::query()->create([
                 'slot_id' => $openSlot->id,
                 'guest_name' => 'Metro Shop',
