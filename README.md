@@ -44,13 +44,13 @@ One Railway project: this app + a MySQL plugin. Same idea as one Render service,
 1. Push this repo to GitHub (include `composer.json` with PHP 8.4, plus `Dockerfile`, `start.sh`, `start-container.sh`, `railpack.json`, and `railway.toml`).
 2. Open [railway.app](https://railway.app), **New project** → **Deploy from GitHub** → `Brian-K05/SlotBook`.
 3. In that same project, **New** → **Database** → **MySQL**. Wait until it is running.
-4. On the **web** service → **Variables**, add **Variable Reference** from the MySQL service (not typed by hand):
+4. Open the **web** service (the one that crashed), not Shared Variables. **Variables** → **Variable Reference** from MySQL:
    - `MYSQLHOST`
    - `MYSQLPORT`
    - `MYSQLDATABASE`
    - `MYSQLUSER`
    - `MYSQLPASSWORD`
-   MySQL vars live on the database service. The web app cannot see them until you reference them here. If this step is skipped, boot connects to `127.0.0.1` and crashes.
+   Those names must appear on the web service list. Project-level Shared Variables do not reach the app until they are shared onto this service. If this step is skipped, boot connects to `127.0.0.1` and crashes.
 5. Still on the web service, Variables:
    - `APP_KEY` — copy from your local `.env` (or run `php artisan key:generate --show`).
    - `APP_URL=https://your-service.up.railway.app` after **Settings → Networking → Generate domain**.

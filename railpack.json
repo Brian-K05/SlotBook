@@ -3,5 +3,13 @@
     "provider": "php",
     "packages": {
         "php": "8.4"
+    },
+    "steps": {
+        "build": {
+            "commands": [
+                "...",
+                "rm -f bootstrap/cache/config.php bootstrap/cache/events.php bootstrap/cache/routes-v7.php bootstrap/cache/routes.php"
+            ]
+        }
     }
 }
