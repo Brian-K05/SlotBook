@@ -1,13 +1,41 @@
 #!/usr/bin/env sh
 set -eu
 
-export DB_HOST="${DB_HOST:-${MYSQLHOST:-}}"
-export DB_PORT="${DB_PORT:-${MYSQLPORT:-3306}}"
-export DB_DATABASE="${DB_DATABASE:-${MYSQLDATABASE:-}}"
-export DB_USERNAME="${DB_USERNAME:-${MYSQLUSER:-}}"
-export DB_PASSWORD="${DB_PASSWORD:-${MYSQLPASSWORD:-}}"
-export DB_URL="${DB_URL:-${MYSQL_URL:-${DATABASE_URL:-}}}"
+echo "SlotBook docker boot"
 
+if [ -n "${MYSQLHOST:-}" ]; then
+  export DB_HOST="$MYSQLHOST"
+fi
+if [ -n "${MYSQLPORT:-}" ]; then
+  export DB_PORT="$MYSQLPORT"
+fi
+if [ -n "${MYSQLDATABASE:-}" ]; then
+  export DB_DATABASE="$MYSQLDATABASE"
+fi
+if [ -n "${MYSQLUSER:-}" ]; then
+  export DB_USERNAME="$MYSQLUSER"
+fi
+if [ -n "${MYSQLPASSWORD:-}" ]; then
+  export DB_PASSWORD="$MYSQLPASSWORD"
+fi
+if [ -n "${MYSQL_URL:-}" ]; then
+  export DB_URL="$MYSQL_URL"
+elif [ -n "${DATABASE_URL:-}" ]; then
+  export DB_URL="$DATABASE_URL"
+fi
+
+echo "MYSQLHOST=${MYSQLHOST:-missing}"
+echo "DB_HOST=${DB_HOST:-missing}"
+echo "DB_DATABASE=${DB_DATABASE:-missing}"
+
+if [ -z "${MYSQLHOST:-}" ] && [ -z "${MYSQL_URL:-}" ] && [ -z "${DATABASE_URL:-}" ]; then
+  echo "FATAL: MYSQLHOST is not on this web service."
+  echo "Click the SlotBook GitHub service (not Shared Variables) → Variables → {} → MySQL → MYSQLHOST, MYSQLPORT, MYSQLDATABASE, MYSQLUSER, MYSQLPASSWORD."
+  env | awk -F= '/^(MYSQL|DB_)/ { print $1 }'
+  exit 1
+fi
+
+rm -f bootstrap/cache/config.php bootstrap/cache/events.php bootstrap/cache/routes-v7.php bootstrap/cache/routes.php
 php artisan config:clear
 php artisan migrate --force
 php artisan db:seed --force

@@ -1,8 +1,9 @@
 [build]
-builder = "RAILPACK"
+builder = "DOCKERFILE"
+dockerfilePath = "Dockerfile"
 
 [deploy]
-startCommand = "bash start-container.sh"
+startCommand = "./start.sh"
 healthcheckPath = "/up"
 healthcheckTimeout = 300
 restartPolicyType = "ON_FAILURE"
@@ -20,5 +21,3 @@ CACHE_STORE = "file"
 QUEUE_CONNECTION = "sync"
 MAIL_FROM_ADDRESS = "hello@slotbook.test"
 MAIL_FROM_NAME = "SlotBook"
-RAILPACK_PHP_EXTENSIONS = "pdo_mysql"
-RAILPACK_SKIP_MIGRATIONS = "true"

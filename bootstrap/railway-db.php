@@ -14,12 +14,6 @@ $map = [
 ];
 
 foreach ($map as $dbKey => $sources) {
-    $current = getenv($dbKey);
-
-    if (is_string($current) && $current !== '') {
-        continue;
-    }
-
     foreach ($sources as $source) {
         $value = getenv($source);
 
