@@ -7,11 +7,11 @@ use App\Http\Requests\StoreBookingRequest;
 use App\Mail\BookingReceived;
 use App\Models\Booking;
 use App\Models\Slot;
+use App\Support\GuestMail;
 use Illuminate\Database\UniqueConstraintViolationException;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
-use Illuminate\Support\Facades\Mail;
 use Illuminate\Validation\ValidationException;
 
 class BookingController extends Controller
@@ -64,7 +64,7 @@ class BookingController extends Controller
         $booking->load('slot');
 
         try {
-            Mail::to($booking->guest_email)->send(new BookingReceived($booking));
+            GuestMail::send($booking->guest_email, new BookingReceived($booking));
         } catch (\Throwable $e) {
             report($e);
             Log::error('SlotBook booking mail failed', ['error' => $e->getMessage()]);

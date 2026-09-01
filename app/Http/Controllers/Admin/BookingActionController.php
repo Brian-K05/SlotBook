@@ -6,9 +6,9 @@ use App\Enums\BookingStatus;
 use App\Http\Controllers\Controller;
 use App\Mail\BookingConfirmed;
 use App\Models\Booking;
+use App\Support\GuestMail;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\Log;
-use Illuminate\Support\Facades\Mail;
 
 class BookingActionController extends Controller
 {
@@ -22,7 +22,7 @@ class BookingActionController extends Controller
         $booking->load('slot');
 
         try {
-            Mail::to($booking->guest_email)->send(new BookingConfirmed($booking));
+            GuestMail::send($booking->guest_email, new BookingConfirmed($booking));
         } catch (\Throwable $e) {
             report($e);
             Log::error('SlotBook confirm mail failed', ['error' => $e->getMessage()]);

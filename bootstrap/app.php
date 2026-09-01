@@ -1,6 +1,7 @@
 <?php
 
 require __DIR__.'/railway-db.php';
+require __DIR__.'/railway-mail.php';
 
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;

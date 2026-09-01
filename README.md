@@ -54,10 +54,14 @@ One Railway project: this app + a MySQL plugin. Same idea as one Render service,
 5. Still on the web service, Variables:
    - `APP_KEY` — copy from your local `.env` (or run `php artisan key:generate --show`).
    - `APP_URL=https://your-service.up.railway.app` after **Settings → Networking → Generate domain**.
-   - Mail (free, any guest inbox): sign up at [brevo.com](https://www.brevo.com), verify your Gmail as a sender, then on SlotBook Variables add:
-     - `MAIL_USERNAME` — the SMTP login from Brevo → **SMTP & API**
+   - Mail (free, any guest inbox): sign up at [brevo.com](https://www.brevo.com), verify your Gmail as a sender, then on the **SlotBook GitHub service** Variables add all of these (do not put them only in Shared Variables):
+     - `MAIL_MAILER=smtp`
+     - `MAIL_HOST=smtp-relay.brevo.com`
+     - `MAIL_PORT=587`
+     - `MAIL_USERNAME` — the SMTP login from Brevo → **SMTP & API** (looks like `…@smtp-brevo.com`)
      - `MAIL_PASSWORD` — the SMTP key from that same page
-     - `MAIL_FROM_ADDRESS` — the Gmail you verified in Brevo
+     - `MAIL_FROM_ADDRESS` — the Gmail you verified in Brevo (not the `@smtp-brevo.com` login)
+     - Do **not** set `MAIL_SCHEME`
 6. Redeploy the web service. First boot runs migrate + seed.
 
 Open the Railway URL. Admin is still `ana@slotbook.test` / `password`.
