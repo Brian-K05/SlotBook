@@ -10,6 +10,7 @@ use App\Models\Slot;
 use Illuminate\Database\UniqueConstraintViolationException;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Validation\ValidationException;
 
@@ -66,6 +67,7 @@ class BookingController extends Controller
             Mail::to($booking->guest_email)->send(new BookingReceived($booking));
         } catch (\Throwable $e) {
             report($e);
+            Log::error('SlotBook booking mail failed', ['error' => $e->getMessage()]);
 
             return redirect()
                 ->route('home', [

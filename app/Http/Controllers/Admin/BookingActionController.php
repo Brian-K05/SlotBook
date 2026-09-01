@@ -7,6 +7,7 @@ use App\Http\Controllers\Controller;
 use App\Mail\BookingConfirmed;
 use App\Models\Booking;
 use Illuminate\Http\RedirectResponse;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Mail;
 
 class BookingActionController extends Controller
@@ -24,6 +25,7 @@ class BookingActionController extends Controller
             Mail::to($booking->guest_email)->send(new BookingConfirmed($booking));
         } catch (\Throwable $e) {
             report($e);
+            Log::error('SlotBook confirm mail failed', ['error' => $e->getMessage()]);
 
             return back()->with('status', 'Confirmed. The note to '.$booking->guest_email.' could not be sent.');
         }
