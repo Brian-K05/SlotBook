@@ -24,6 +24,7 @@
 /database/*.sqlite
 /database/*.sqlite-journal
 _ide_helper.php
+AGENTS.md
 CLAUDE.md
 Homestead.json
 Homestead.yaml
