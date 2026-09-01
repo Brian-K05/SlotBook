@@ -4,11 +4,13 @@ namespace App\Http\Controllers;
 
 use App\Enums\BookingStatus;
 use App\Http\Requests\StoreBookingRequest;
+use App\Mail\BookingReceived;
 use App\Models\Booking;
 use App\Models\Slot;
 use Illuminate\Database\UniqueConstraintViolationException;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Mail;
 use Illuminate\Validation\ValidationException;
 
 class BookingController extends Controller
@@ -58,11 +60,19 @@ class BookingController extends Controller
             ]);
         }
 
+        $booking->load('slot');
+
+        try {
+            Mail::to($booking->guest_email)->send(new BookingReceived($booking));
+        } catch (\Throwable $e) {
+            report($e);
+        }
+
         return redirect()
             ->route('home', [
                 'month' => $booking->slot->starts_at->format('Y-m'),
                 'day' => $booking->slot->starts_at->toDateString(),
             ])
-            ->with('status', 'Hold that hour. We will write to '.$booking->guest_email.' when it is confirmed.');
+            ->with('status', 'Hold that hour. A note was sent to '.$booking->guest_email.'. We will write again when it is confirmed.');
     }
 }

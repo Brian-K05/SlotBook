@@ -4,6 +4,7 @@ namespace Tests\Feature;
 
 use App\Enums\BookingStatus;
 use App\Mail\BookingConfirmed;
+use App\Mail\BookingReceived;
 use App\Models\Booking;
 use App\Models\Slot;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -43,7 +44,10 @@ class BookingTest extends TestCase
             'paid' => 0,
         ]);
 
-        Mail::assertNothingSent();
+        Mail::assertSent(BookingReceived::class, function (BookingReceived $mail) use ($slot) {
+            return $mail->hasTo('luis@example.test')
+                && $mail->booking->slot_id === $slot->id;
+        });
     }
 
     public function test_the_same_slot_cannot_be_double_booked(): void

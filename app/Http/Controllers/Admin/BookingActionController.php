@@ -20,9 +20,15 @@ class BookingActionController extends Controller
         $booking->update(['status' => BookingStatus::Confirmed]);
         $booking->load('slot');
 
-        Mail::to($booking->guest_email)->send(new BookingConfirmed($booking));
+        try {
+            Mail::to($booking->guest_email)->send(new BookingConfirmed($booking));
+        } catch (\Throwable $e) {
+            report($e);
 
-        return back()->with('status', 'Confirmed. A note was written to the mail log for '.$booking->guest_email.'.');
+            return back()->with('status', 'Confirmed. The note to '.$booking->guest_email.' could not be sent.');
+        }
+
+        return back()->with('status', 'Confirmed. A note was sent to '.$booking->guest_email.'.');
     }
 
     public function cancel(Booking $booking): RedirectResponse

@@ -4,7 +4,7 @@ SlotBook is a web app for booking a time on a calendar. Guests pick a day, choos
 
 The public home is the calendar. Booking happens there — not on a separate form page first.
 
-Dummy data only. Confirm notes are written to the local mail log, not sent to real inboxes.
+Dummy data only. Locally, booking notes go to the mail log. On Railway, they go out through a free Resend account.
 
 ## Stack
 
@@ -31,7 +31,7 @@ If MySQL is already running on your machine, skip Docker, create a `slotbook` da
 - Email: `ana@slotbook.test`
 - Password: `password`
 
-Confirm emails land in `storage/logs/laravel.log`.
+Local confirm and “we received your request” notes land in `storage/logs/laravel.log`.
 
 ```bash
 php artisan test
@@ -54,6 +54,8 @@ One Railway project: this app + a MySQL plugin. Same idea as one Render service,
 5. Still on the web service, Variables:
    - `APP_KEY` — copy from your local `.env` (or run `php artisan key:generate --show`).
    - `APP_URL=https://your-service.up.railway.app` after **Settings → Networking → Generate domain**.
+   - `RESEND_API_KEY` — free key from [resend.com](https://resend.com) (100 emails/day).
+   - `MAIL_FROM_ADDRESS` — a sender Resend has verified (your Resend login email while testing, or a domain you verified).
 6. Redeploy the web service. First boot runs migrate + seed.
 
 Open the Railway URL. Admin is still `ana@slotbook.test` / `password`.
