@@ -24,32 +24,21 @@ elif [ -n "${DATABASE_URL:-}" ]; then
   export DB_URL="$DATABASE_URL"
 fi
 
-if [ -n "${MAIL_USERNAME:-}" ] && [ "${MAIL_USERNAME}" != "null" ]; then
-  export MAIL_MAILER=smtp
-  if [ -z "${MAIL_HOST:-}" ] || [ "${MAIL_HOST}" = "127.0.0.1" ] || [ "${MAIL_HOST}" = "localhost" ] || [ "${MAIL_HOST}" = "null" ]; then
-    export MAIL_HOST=smtp-relay.brevo.com
+if [ -z "${BREVO_KEY:-}" ] || [ "${BREVO_KEY}" = "null" ]; then
+  if [ -n "${MAIL_PASSWORD:-}" ] && [ "${MAIL_PASSWORD#xkeysib-}" != "${MAIL_PASSWORD}" ]; then
+    export BREVO_KEY="$MAIL_PASSWORD"
+  else
+    echo "WARN: BREVO_KEY is missing. Railway Hobby blocks SMTP, so booking notes will not reach inboxes."
   fi
-  if [ -z "${MAIL_PORT:-}" ] || [ "${MAIL_PORT}" = "2525" ] || [ "${MAIL_PORT}" = "null" ]; then
-    export MAIL_PORT=587
-  fi
-  unset MAIL_SCHEME || true
-  if [ -n "${RAILWAY_PUBLIC_DOMAIN:-}" ]; then
-    export MAIL_EHLO_DOMAIN="${RAILWAY_PUBLIC_DOMAIN}"
-  fi
-else
-  echo "WARN: MAIL_USERNAME is missing. Booking notes will not reach inboxes."
 fi
 
 echo "MYSQLHOST=${MYSQLHOST:-missing}"
 echo "DB_HOST=${DB_HOST:-missing}"
 echo "DB_DATABASE=${DB_DATABASE:-missing}"
-echo "MAIL_MAILER=${MAIL_MAILER:-log}"
-echo "MAIL_HOST=${MAIL_HOST:-unset}"
-echo "MAIL_PORT=${MAIL_PORT:-unset}"
-if [ -n "${MAIL_USERNAME:-}" ] && [ "${MAIL_USERNAME}" != "null" ]; then
-  echo "MAIL_USERNAME=set"
+if [ -n "${BREVO_KEY:-}" ] && [ "${BREVO_KEY}" != "null" ]; then
+  echo "BREVO_KEY=set"
 else
-  echo "MAIL_USERNAME=missing"
+  echo "BREVO_KEY=missing"
 fi
 echo "MAIL_FROM_ADDRESS=${MAIL_FROM_ADDRESS:-unset}"
 

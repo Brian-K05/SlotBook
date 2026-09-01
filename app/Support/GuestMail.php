@@ -3,6 +3,7 @@
 namespace App\Support;
 
 use Illuminate\Mail\Mailable;
+use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Mail;
 use RuntimeException;
@@ -11,41 +12,103 @@ class GuestMail
 {
     public static function send(string $to, Mailable $mail): void
     {
-        if (app()->environment('production') && ! self::smtpReady()) {
+        if (self::apiReady()) {
+            self::sendViaBrevoApi($to, $mail);
+
+            return;
+        }
+
+        if (app()->environment('production')) {
             throw new RuntimeException(
-                'SMTP is not configured. On the SlotBook web service set MAIL_MAILER=smtp, MAIL_HOST=smtp-relay.brevo.com, MAIL_PORT=587, MAIL_USERNAME, MAIL_PASSWORD, and MAIL_FROM_ADDRESS to the Gmail verified in Brevo. Do not set MAIL_SCHEME.'
+                'Railway Hobby blocks SMTP. Add BREVO_KEY from Brevo → SMTP & API → API keys, and keep MAIL_FROM_ADDRESS as the Gmail verified in Brevo.'
             );
         }
 
-        if (self::smtpReady()) {
-            Mail::mailer('smtp')->to($to)->send($mail);
-        } else {
-            Mail::to($to)->send($mail);
-        }
+        Mail::to($to)->send($mail);
 
         Log::info('SlotBook mail sent', [
-            'mailer' => self::smtpReady() ? 'smtp' : config('mail.default'),
-            'host' => config('mail.mailers.smtp.host'),
-            'from' => config('mail.from.address'),
+            'mailer' => config('mail.default'),
             'to' => $to,
         ]);
     }
 
-    public static function smtpReady(): bool
+    public static function apiReady(): bool
     {
-        $user = config('mail.mailers.smtp.username');
-        $pass = config('mail.mailers.smtp.password');
-        $from = config('mail.from.address');
-        $host = config('mail.mailers.smtp.host');
+        return self::apiKey() !== null && self::fromIsLive();
+    }
 
-        return self::filled($user)
-            && self::filled($pass)
-            && self::filled($from)
-            && ! str_contains(strtolower((string) $from), 'slotbook.test')
-            && ! str_contains(strtolower((string) $from), 'resend.dev')
-            && ! str_contains(strtolower((string) $from), 'example.com')
-            && self::filled($host)
-            && ! in_array($host, ['127.0.0.1', 'localhost'], true);
+    private static function sendViaBrevoApi(string $to, Mailable $mail): void
+    {
+        $from = (string) config('mail.from.address');
+        $name = (string) config('mail.from.name', 'SlotBook');
+        $subject = $mail->envelope()->subject ?? 'SlotBook';
+
+        $response = Http::withHeaders([
+            'api-key' => self::apiKey(),
+            'accept' => 'application/json',
+        ])
+            ->timeout(12)
+            ->asJson()
+            ->post('https://api.brevo.com/v3/smtp/email', [
+                'sender' => [
+                    'name' => $name !== '' ? $name : 'SlotBook',
+                    'email' => $from,
+                ],
+                'to' => [
+                    ['email' => $to],
+                ],
+                'subject' => $subject,
+                'htmlContent' => $mail->render(),
+            ]);
+
+        if ($response->failed()) {
+            Log::error('SlotBook Brevo API failed', [
+                'status' => $response->status(),
+                'body' => $response->body(),
+                'to' => $to,
+            ]);
+
+            throw new RuntimeException('Brevo API '.$response->status().': '.$response->body());
+        }
+
+        Log::info('SlotBook mail sent', [
+            'mailer' => 'brevo-api',
+            'from' => $from,
+            'to' => $to,
+            'id' => $response->json('messageId'),
+        ]);
+    }
+
+    private static function apiKey(): ?string
+    {
+        $key = config('services.brevo.key');
+
+        if (self::filled($key)) {
+            return $key;
+        }
+
+        $password = config('mail.mailers.smtp.password');
+
+        if (is_string($password) && str_starts_with($password, 'xkeysib-')) {
+            return $password;
+        }
+
+        return null;
+    }
+
+    private static function fromIsLive(): bool
+    {
+        $from = config('mail.from.address');
+
+        if (! self::filled($from)) {
+            return false;
+        }
+
+        $from = strtolower($from);
+
+        return ! str_contains($from, 'slotbook.test')
+            && ! str_contains($from, 'resend.dev')
+            && ! str_contains($from, 'example.com');
     }
 
     private static function filled(mixed $value): bool
