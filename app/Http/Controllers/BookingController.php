@@ -66,6 +66,13 @@ class BookingController extends Controller
             Mail::to($booking->guest_email)->send(new BookingReceived($booking));
         } catch (\Throwable $e) {
             report($e);
+
+            return redirect()
+                ->route('home', [
+                    'month' => $booking->slot->starts_at->format('Y-m'),
+                    'day' => $booking->slot->starts_at->toDateString(),
+                ])
+                ->with('status', 'Hold that hour. The note to '.$booking->guest_email.' could not be sent.');
         }
 
         return redirect()

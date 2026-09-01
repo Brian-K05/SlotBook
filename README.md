@@ -4,7 +4,7 @@ SlotBook is a web app for booking a time on a calendar. Guests pick a day, choos
 
 The public home is the calendar. Booking happens there — not on a separate form page first.
 
-Dummy data only. Locally, booking notes go to the mail log. On Railway, they go out through a free Resend account.
+Dummy data only. Locally, booking notes go to the mail log. On Railway they go out through a free [Brevo](https://www.brevo.com) SMTP account, so any guest email can get the note.
 
 ## Stack
 
@@ -54,8 +54,10 @@ One Railway project: this app + a MySQL plugin. Same idea as one Render service,
 5. Still on the web service, Variables:
    - `APP_KEY` — copy from your local `.env` (or run `php artisan key:generate --show`).
    - `APP_URL=https://your-service.up.railway.app` after **Settings → Networking → Generate domain**.
-   - `RESEND_API_KEY` — free key from [resend.com](https://resend.com) (100 emails/day).
-   - `MAIL_FROM_ADDRESS` — a sender Resend has verified (your Resend login email while testing, or a domain you verified).
+   - Mail (free, any guest inbox): sign up at [brevo.com](https://www.brevo.com), verify your Gmail as a sender, then on SlotBook Variables add:
+     - `MAIL_USERNAME` — the SMTP login from Brevo → **SMTP & API**
+     - `MAIL_PASSWORD` — the SMTP key from that same page
+     - `MAIL_FROM_ADDRESS` — the Gmail you verified in Brevo
 6. Redeploy the web service. First boot runs migrate + seed.
 
 Open the Railway URL. Admin is still `ana@slotbook.test` / `password`.
