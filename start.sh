@@ -40,7 +40,15 @@ if [ -n "${BREVO_KEY:-}" ] && [ "${BREVO_KEY}" != "null" ]; then
 else
   echo "BREVO_KEY=missing"
 fi
+if [ -z "${APP_NAME:-}" ] || [ "${APP_NAME}" = "Laravel" ]; then
+  export APP_NAME=SlotBook
+fi
+if [ -z "${MAIL_FROM_NAME:-}" ] || [ "${MAIL_FROM_NAME}" = "Laravel" ]; then
+  export MAIL_FROM_NAME=SlotBook
+fi
+
 echo "MAIL_FROM_ADDRESS=${MAIL_FROM_ADDRESS:-unset}"
+echo "MAIL_FROM_NAME=${MAIL_FROM_NAME:-SlotBook}"
 
 if [ -z "${MYSQLHOST:-}" ] && [ -z "${MYSQL_URL:-}" ] && [ -z "${DATABASE_URL:-}" ]; then
   echo "FATAL: MYSQLHOST is not on this web service."

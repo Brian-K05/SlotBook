@@ -58,6 +58,7 @@ class GuestMailTest extends TestCase
         Http::assertSent(function ($request) use ($booking): bool {
             return $request->url() === 'https://api.brevo.com/v3/smtp/email'
                 && $request->hasHeader('api-key', 'xkeysib-test')
+                && $request['sender']['name'] === 'SlotBook'
                 && $request['sender']['email'] === 'ana@gmail.com'
                 && $request['to'][0]['email'] === $booking->guest_email
                 && str_contains((string) $request['htmlContent'], 'Luis Santos');

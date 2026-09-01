@@ -40,7 +40,10 @@ class GuestMail
     private static function sendViaBrevoApi(string $to, Mailable $mail): void
     {
         $from = (string) config('mail.from.address');
-        $name = (string) config('mail.from.name', 'SlotBook');
+        $name = (string) config('mail.from.name');
+        if ($name === '' || strcasecmp($name, 'Laravel') === 0) {
+            $name = 'SlotBook';
+        }
         $subject = $mail->envelope()->subject ?? 'SlotBook';
 
         $response = Http::withHeaders([
